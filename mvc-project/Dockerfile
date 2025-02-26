@@ -24,7 +24,7 @@ RUN ls -R /src
 RUN dotnet nuget locals all --clear
 
 # Run restore (with error message if it fails)
-RUN dotnet restore "./mvc-project/mvc-project.csproj" || (echo "Restore failed!" && exit 1)
+RUN dotnet restore "mvc-project.csproj" || (echo "Restore failed!" && exit 1)
 
 COPY . .
 WORKDIR "/src/mvc-project"
