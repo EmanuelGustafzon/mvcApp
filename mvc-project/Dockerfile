@@ -12,7 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["mvc-project.csproj", "mvc-project/"]
+COPY ["/mvc-project/mvc-project.csproj", "mvc-project/"]
 RUN dotnet restore "./mvc-project/mvc-project.csproj"
 COPY . .
 WORKDIR "/src/mvc-project"
