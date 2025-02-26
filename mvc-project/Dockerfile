@@ -15,7 +15,7 @@ WORKDIR /src
 RUN echo "Checking initial directory structure..." && ls -R /
 
 # Fix: Corrected COPY path
-COPY ["mvc-project/mvc-project.csproj", "mvc-project/"]
+COPY ["mvc-project.csproj", "mvc-project/"]
 
 # Debug: Verify the file exists
 RUN ls -R /src
