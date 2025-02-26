@@ -13,7 +13,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["mvc-project.csproj", "mvc-project/"]
-RUN dotnet restore "mvc-project.csproj"
+RUN dotnet restore "./mvc-project/mvc-project.csproj"
 COPY . .
 WORKDIR "/src/mvc-project"
 RUN dotnet build "mvc-project.csproj" -c $BUILD_CONFIGURATION -o /app/build
