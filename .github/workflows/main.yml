@@ -21,8 +21,8 @@ jobs:
       - name: Build and test
         uses: docker/build-push-action@v6
         with:
-          context: ./mvc-project
-          file: ./mvc-project/Dockerfile
+          context: mvc-project
+          file: mvc-project/Dockerfile
           target: build
           load: true
 
