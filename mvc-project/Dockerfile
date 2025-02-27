@@ -1,36 +1,30 @@
-# Base runtime image
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-ARG APP_UID=1000
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Build stage
+
+# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-
-# Debug: List files before copying
-RUN echo "Checking initial directory structure..." && ls -R /
-
-# Fix: Corrected COPY path
-COPY ["mvc-project.csproj", "mvc-project/"]
-
-# Debug: Verify the file exists
-RUN ls -R /src
-
-# Fix: Clear NuGet cache before restore
-RUN dotnet nuget locals all --clear
-
-# Run restore (with error message if it fails)
-RUN dotnet restore "mvc-project.csproj" || (echo "Restore failed!" && exit 1)
-
+COPY ["mvc-project/mvc-project.csproj", "mvc-project/"]
+RUN dotnet restore "./mvc-project/mvc-project.csproj"
 COPY . .
 WORKDIR "/src/mvc-project"
+RUN dotnet build "./mvc-project.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Debug: Check .NET version
-RUN dotnet --version
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./mvc-project.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Fix: Set default build configuration
-RUN dotnet build "mvc-project.csproj" -c ${BUILD_CONFIGURATION:-Release} -o /app/build
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "mvc-project.dll"]
